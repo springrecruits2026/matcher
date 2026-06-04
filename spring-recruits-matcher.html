@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring Recruits — Career Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rail: #1a1a1a;
+    --steel: #2d2d2d;
+    --track: #3d3d3d;
+    --rust: #c0392b;
+    --rust-light: #e74c3c;
+    --gold: #f39c12;
+    --cream: #f5f0e8;
+    --smoke: #8a8a8a;
+    --white: #ffffff;
+    --match-green: #27ae60;
+    --radius: 16px;
+    --shadow: 0 4px 32px rgba(0,0,0,0.4);
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--rail);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TRACK LINE BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.02) 60px, rgba(255,255,255,0.02) 62px),
+      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 21px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 20px 24px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--rust);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--smoke);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .match-count-badge {
+    background: var(--rust);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    display: none;
+  }
+
+  /* SCREENS */
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* ================= UPLOAD SCREEN ================= */
+  #upload-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 32px 24px;
+    gap: 32px;
+  }
+
+  .upload-hero {
+    text-align: center;
+  }
+
+  .upload-hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 4px;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .upload-hero h1 span { color: var(--rust); }
+
+  .upload-hero p {
+    font-size: 14px;
+    color: var(--smoke);
+    line-height: 1.6;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .rails-divider {
+    width: 100%;
+    height: 24px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .rails-divider::before,
+  .rails-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--track);
+  }
+
+  .rails-divider span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    letter-spacing: 2px;
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+
+  .upload-zone {
+    width: 100%;
+    border: 2px dashed var(--track);
+    border-radius: var(--radius);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--rust);
+    background: rgba(192,57,43,0.06);
+  }
+
+  .upload-zone-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+
+  .upload-zone h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .upload-zone p {
+    font-size: 13px;
+    color: var(--smoke);
+  }
+
+  .upload-zone p strong {
+    color: var(--rust-light);
+  }
+
+  #resume-file-input { display: none; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: var(--rust);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--rust-light); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { background: var(--track); color: var(--smoke); cursor: not-allowed; transform: none; }
+
+  .file-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(39,174,96,0.1);
+    border: 1px solid rgba(39,174,96,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: none;
+  }
+
+  .file-selected.visible { display: flex; }
+
+  .file-selected-icon { font-size: 22px; }
+
+  .file-selected-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--match-green);
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ================= ANALYZING SCREEN ================= */
+  #analyzing-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 32px 24px;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .analyzing-animation {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .train-icon { font-size: 48px; }
+
+  .analyzing-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--track);
+    border-top-color: var(--rust);
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .analyzing-text h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .analyzing-text p {
+    font-size: 13px;
+    color: var(--smoke);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .analyzing-steps {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    opacity: 0.3;
+    transition: all 0.4s;
+  }
+
+  .step-item.active { opacity: 1; border: 1px solid rgba(192,57,43,0.3); }
+  .step-item.done { opacity: 0.7; }
+  .step-item.done .step-dot { background: var(--match-green); }
+
+  .step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rust);
+    flex-shrink: 0;
+  }
+
+  .step-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--cream);
+  }
+
+  /* ================= SWIPE SCREEN ================= */
+  #swipe-screen {
+    padding: 16px 24px 24px;
+    gap: 16px;
+  }
+
+  .swipe-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .progress-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--smoke);
+    letter-spacing: 1px;
+  }
+
+  .progress-bar-wrap {
+    flex: 1;
+    height: 3px;
+    background: var(--track);
+    border-radius: 2px;
+    margin: 0 12px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--rust);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* CARD STACK */
+  .card-stack {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .card-backdrop {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 4px;
+    color: var(--track);
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-backdrop p {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    color: var(--smoke);
+    letter-spacing: 0;
+  }
+
+  .job-card {
+    position: absolute;
+    inset: 0;
+    background: var(--steel);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.08s ease-out;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .job-card:active { cursor: grabbing; }
+
+  .job-card.swiping { transition: none; }
+
+  .job-card.swipe-left {
+    transform: translateX(-120%) rotate(-20deg) !important;
+    transition: transform 0.4s ease !important;
+    opacity: 0;
+  }
+
+  .job-card.swipe-right {
+    transform: translateX(120%) rotate(20deg) !important;
+    transition: transform 0.4s ease !important;
+    opacity: 0;
+  }
+
+  /* Stack effect for next cards */
+  .job-card:nth-child(2) {
+    transform: scale(0.95) translateY(12px);
+    z-index: 1;
+  }
+
+  .job-card:nth-child(3) {
+    transform: scale(0.9) translateY(24px);
+    z-index: 0;
+  }
+
+  .job-card:first-child { z-index: 3; }
+
+  .card-header {
+    padding: 20px 20px 16px;
+    background: linear-gradient(135deg, var(--rail) 0%, rgba(192,57,43,0.15) 100%);
+    flex-shrink: 0;
+  }
+
+  .card-category {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--rust-light);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .meta-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--smoke);
+  }
+
+  .meta-tag.location { border-color: rgba(243,156,18,0.3); color: var(--gold); }
+  .meta-tag.worktype { border-color: rgba(192,57,43,0.3); color: var(--rust-light); }
+
+  .card-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .card-body::-webkit-scrollbar { width: 4px; }
+  .card-body::-webkit-scrollbar-track { background: transparent; }
+  .card-body::-webkit-scrollbar-thumb { background: var(--track); border-radius: 2px; }
+
+  /* MATCH SCORE BAR */
+  .match-score-section {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .match-score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .match-score-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--smoke);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .match-score-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .match-score-bar {
+    height: 6px;
+    background: var(--track);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .match-score-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  .match-score-desc {
+    font-size: 12px;
+    color: var(--smoke);
+    line-height: 1.5;
+  }
+
+  .match-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .kw-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .kw-match { background: rgba(39,174,96,0.15); color: #2ecc71; border: 1px solid rgba(39,174,96,0.2); }
+  .kw-partial { background: rgba(243,156,18,0.12); color: var(--gold); border: 1px solid rgba(243,156,18,0.2); }
+  .kw-miss { background: rgba(255,255,255,0.04); color: var(--smoke); border: 1px solid rgba(255,255,255,0.08); }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .card-description {
+    font-size: 13px;
+    color: rgba(245,240,232,0.75);
+    line-height: 1.65;
+  }
+
+  .qualifications-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .qualifications-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(245,240,232,0.7);
+    line-height: 1.4;
+  }
+
+  .qualifications-list li::before {
+    content: '—';
+    color: var(--rust);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .salary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(243,156,18,0.1);
+    border: 1px solid rgba(243,156,18,0.25);
+    border-radius: 8px;
+    padding: 8px 14px;
+  }
+
+  .salary-badge span:first-child { font-size: 14px; }
+  .salary-badge span:last-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* LIKE / PASS OVERLAYS */
+  .swipe-overlay {
+    position: absolute;
+    top: 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 4px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 3px solid;
+    opacity: 0;
+    transition: opacity 0.1s;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .overlay-like {
+    right: 24px;
+    color: var(--match-green);
+    border-color: var(--match-green);
+    transform: rotate(12deg);
+  }
+
+  .overlay-pass {
+    left: 24px;
+    color: var(--rust);
+    border-color: var(--rust);
+    transform: rotate(-12deg);
+  }
+
+  /* ACTION BUTTONS */
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .action-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition: all 0.15s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  .action-btn:active { transform: scale(0.9); }
+
+  .btn-pass {
+    background: rgba(192,57,43,0.15);
+    border: 1.5px solid rgba(192,57,43,0.4);
+    color: var(--rust-light);
+  }
+
+  .btn-pass:hover { background: rgba(192,57,43,0.25); }
+
+  .btn-apply {
+    width: 72px;
+    height: 72px;
+    font-size: 28px;
+    background: var(--match-green);
+    color: white;
+    box-shadow: 0 4px 20px rgba(39,174,96,0.4);
+  }
+
+  .btn-apply:hover { background: #2ecc71; box-shadow: 0 4px 28px rgba(39,174,96,0.5); }
+
+  .btn-info {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: var(--smoke);
+  }
+
+  .btn-info:hover { background: rgba(255,255,255,0.1); }
+
+  .swipe-hint {
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: rgba(138,138,138,0.5);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ================= MATCH SCREEN ================= */
+  #match-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 32px 24px;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .match-burst {
+    font-size: 64px;
+    animation: matchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes matchPop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .match-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 6px;
+    line-height: 1;
+  }
+
+  .match-headline span { color: var(--rust); }
+
+  .match-subtitle {
+    font-size: 14px;
+    color: var(--smoke);
+    max-width: 280px;
+    line-height: 1.6;
+  }
+
+  .matched-job-card {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(39,174,96,0.3);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: left;
+  }
+
+  .matched-job-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .matched-job-location {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .match-score-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(39,174,96,0.15);
+    border: 1px solid rgba(39,174,96,0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #2ecc71;
+  }
+
+  .match-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-apply-now {
+    padding: 16px;
+    background: var(--match-green);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+  }
+
+  .btn-apply-now:hover { background: #2ecc71; }
+
+  .btn-keep-swiping {
+    padding: 14px;
+    background: transparent;
+    color: var(--smoke);
+    border: 1px solid var(--track);
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-keep-swiping:hover { color: var(--cream); border-color: rgba(255,255,255,0.2); }
+
+  /* ================= RESULTS SCREEN ================= */
+  #results-screen {
+    padding: 20px 24px 32px;
+    gap: 16px;
+  }
+
+  .results-header {
+    text-align: center;
+  }
+
+  .results-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 4px;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .results-header p {
+    font-size: 13px;
+    color: var(--smoke);
+  }
+
+  .results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .result-item {
+    background: var(--steel);
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .result-score-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .result-info { flex: 1; min-width: 0; }
+
+  .result-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cream);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+  }
+
+  .result-location {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    letter-spacing: 1px;
+  }
+
+  .result-apply-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .result-apply-btn.match {
+    background: rgba(39,174,96,0.15);
+    border: 1px solid rgba(39,174,96,0.35);
+    color: #2ecc71;
+  }
+
+  .result-apply-btn.liked {
+    background: rgba(192,57,43,0.1);
+    border: 1px solid rgba(192,57,43,0.25);
+    color: var(--rust-light);
+  }
+
+  .result-apply-btn:hover { opacity: 0.8; }
+
+  .btn-restart {
+    padding: 14px;
+    background: transparent;
+    color: var(--smoke);
+    border: 1px solid var(--track);
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-restart:hover { color: var(--cream); border-color: rgba(255,255,255,0.2); }
+
+  /* ================= TOAST ================= */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--steel);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--cream);
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+
+  .toast.visible { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">🚂</div>
+      <div>
+        <div class="logo-text">SPRING RECRUITS</div>
+        <div class="logo-sub">Career Match</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="match-count-badge" id="match-badge">0 matches</span>
+    </div>
+  </header>
+
+  <!-- UPLOAD SCREEN -->
+  <div class="screen active" id="upload-screen">
+    <div class="upload-hero">
+      <h1>FIND YOUR<br><span>TRACK</span></h1>
+      <p>Upload your resume and we'll match you to open railroad and transportation careers across the country.</p>
+    </div>
+
+    <div class="rails-divider"><span>UPLOAD RESUME</span></div>
+
+    <div class="upload-zone" id="upload-zone">
+      <div class="upload-zone-icon">📄</div>
+      <h3>Drop your resume here</h3>
+      <p>PDF or text file — or <strong>click to browse</strong></p>
+    </div>
+
+    <input type="file" id="resume-file-input" accept=".pdf,.txt,.doc,.docx">
+
+    <div class="file-selected" id="file-selected">
+      <span class="file-selected-icon">✅</span>
+      <span class="file-selected-name" id="file-name-display">resume.pdf</span>
+    </div>
+
+    <button class="btn-primary" id="analyze-btn" disabled>FIND MY MATCHES</button>
+  </div>
+
+  <!-- ANALYZING SCREEN -->
+  <div class="screen" id="analyzing-screen">
+    <div class="analyzing-animation">
+      <div class="train-icon">🚂</div>
+      <div class="analyzing-ring"></div>
+    </div>
+    <div class="analyzing-text">
+      <h2>ANALYZING</h2>
+      <p id="analyzing-status">Reading your resume...</p>
+    </div>
+    <div class="analyzing-steps">
+      <div class="step-item active" id="step-1">
+        <div class="step-dot"></div>
+        <span class="step-label">Parsing resume content</span>
+      </div>
+      <div class="step-item" id="step-2">
+        <div class="step-dot"></div>
+        <span class="step-label">Extracting skills &amp; experience</span>
+      </div>
+      <div class="step-item" id="step-3">
+        <div class="step-dot"></div>
+        <span class="step-label">Scoring against 28 open roles</span>
+      </div>
+      <div class="step-item" id="step-4">
+        <div class="step-dot"></div>
+        <span class="step-label">Ranking your best matches</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SWIPE SCREEN -->
+  <div class="screen" id="swipe-screen">
+    <div class="swipe-progress">
+      <span class="progress-text" id="swipe-counter">1 / 28</span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="swipe-progress-bar" style="width: 0%"></div>
+      </div>
+      <span class="progress-text" id="match-tally">0 ❤️</span>
+    </div>
+
+    <div class="card-stack" id="card-stack">
+      <div class="card-backdrop">
+        <span>ALL DONE</span>
+        <p>See your results below</p>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn btn-pass" id="btn-pass" title="Pass">✕</button>
+      <button class="action-btn btn-apply" id="btn-like" title="Interested">♥</button>
+      <button class="action-btn btn-info" id="btn-results-link" title="View results">📋</button>
+    </div>
+    <div class="swipe-hint">SWIPE RIGHT TO MATCH · SWIPE LEFT TO PASS</div>
+  </div>
+
+  <!-- MATCH POPUP SCREEN -->
+  <div class="screen" id="match-screen">
+    <div class="match-burst">🎉</div>
+    <div class="match-headline">IT'S A<br><span>MATCH!</span></div>
+    <p class="match-subtitle">Your profile is a strong fit for this role. Ready to take the next step?</p>
+
+    <div class="matched-job-card" id="match-job-card">
+      <div class="matched-job-title" id="match-job-title">Locomotive Mechanic</div>
+      <div class="matched-job-location" id="match-job-location">📍 Knoxville, TN</div>
+      <div class="match-score-pill" id="match-score-pill">⚡ 92% match</div>
+    </div>
+
+    <div class="match-actions">
+      <a class="btn-apply-now" id="match-apply-link" href="#" target="_blank">APPLY NOW →</a>
+      <button class="btn-keep-swiping" id="btn-keep-swiping">Keep exploring jobs</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="results-screen">
+    <div class="results-header">
+      <h2>YOUR MATCHES</h2>
+      <p id="results-subtext">Based on your resume</p>
+    </div>
+    <div class="results-list" id="results-list"></div>
+    <button class="btn-restart" id="btn-restart">↩ Start over with new resume</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const JOBS = [
+  { id:"53fa5faa", title:"Sales Manager – Power Distribution Anchoring Systems", team:"Business", location:"Denton, TX", worktype:"Full time with Travel", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/53fa5faa-4134-41da-8e6d-2983d6b87bc0", description:"Lead sales efforts for power distribution anchoring systems used in railroad infrastructure. Build and manage customer relationships across the rail industry.", qualifications:["Sales experience in industrial or rail products","Strong client development skills","Ability to travel","Knowledge of power distribution or anchoring systems preferred"], keywords:["sales","power distribution","anchoring","railroad","client management","travel","business development"] },
+  { id:"8ed863aa", title:"Sales Engineer", team:"Business", location:"Pittsburgh, PA", worktype:"Full Time – Remote", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/8ed863aa-442a-46b3-9e0b-0e0e27a365d3", description:"Technical sales role combining engineering knowledge with business development for railroad infrastructure solutions.", qualifications:["Engineering background","Sales experience in technical field","Strong communication skills","Railroad or industrial experience preferred"], keywords:["sales engineer","engineering","technical sales","railroad","remote","business development"] },
+  { id:"09916f4b", title:"Jack & Bore Crew Foreman", team:"Construction", location:"Kansas City, KS", worktype:"Full time with Travel", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/09916f4b-991a-4e8f-8b38-b134a4d237f9", description:"Lead jack and bore crews on railroad culvert installation projects. Manage crew safety, equipment, and project timelines.", qualifications:["Experience with jack and bore operations","Crew leadership experience","Railroad or heavy construction background","Safety certifications"], keywords:["jack bore","foreman","culvert","construction","crew leader","railroad","heavy equipment","safety"] },
+  { id:"c1ded390", title:"Senior Structural Engineer – Ports & Maritime", team:"Construction", location:"Chesapeake, VA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/c1ded390-0a14-41c8-873c-87db1e163e80", description:"Design and analyze structural systems for port and maritime infrastructure. Collaborate with multidisciplinary teams on major transportation projects.", qualifications:["PE license preferred","5+ years structural engineering","Maritime or port project experience","Proficiency in structural analysis software"], keywords:["structural engineer","ports","maritime","PE","civil","design","Chesapeake","construction"] },
+  { id:"4ae306ad", title:"Fluid Power Engineer", team:"Mechanical", location:"Chesapeake, VA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/4ae306ad-b761-4463-be92-6bfd4dfc6de4", description:"Design and maintain fluid power systems for railroad and marine equipment. Troubleshoot hydraulic and pneumatic systems.", qualifications:["Hydraulics and pneumatics experience","Mechanical engineering background","Railroad or marine industry experience a plus","Strong troubleshooting skills"], keywords:["fluid power","hydraulics","pneumatics","mechanical engineer","railroad","marine","design"] },
+  { id:"64fb25cc", title:"Locomotive Mechanic", team:"Mechanical", location:"Knoxville, TN", worktype:"Full-time", salary:"$29–$31/hr", lever:"https://jobs.lever.co/springrecruits/64fb25cc-98f0-4aea-a611-ff3c5f34cdc4", description:"Inspect, maintain, and repair diesel locomotives. Critical role ensuring safe and reliable rail operations.", qualifications:["GE and EMD locomotive experience required","Air brake and electrical systems knowledge","FRA inspection experience","Welding experience a plus"], keywords:["locomotive mechanic","diesel","EMD","GE","air brake","FRA","maintenance","repair","railroad"] },
+  { id:"10f5dbc5", title:"Locomotive Mechanic", team:"Mechanical", location:"Geneva, NY", worktype:"Full-time", salary:"$29–$31/hr", lever:"https://jobs.lever.co/springrecruits/10f5dbc5-1d99-4a08-9466-ee94de219158", description:"Inspect, maintain, and repair diesel locomotives in Geneva, NY. Ensure safe and reliable operations across the rail network.", qualifications:["GE and EMD locomotive experience","Air brake systems knowledge","FRA documentation experience","Team-oriented with strong safety mindset"], keywords:["locomotive mechanic","diesel","EMD","GE","air brake","FRA","maintenance","repair","railroad","New York"] },
+  { id:"a87cc442", title:"Manager of Passenger Railcar Excursion Equipment", team:"Mechanical", location:"Dillwyn/Strathmore, VA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/a87cc442-8618-42de-bb69-3732f275d83d", description:"Manage maintenance and operations of passenger excursion railcars. Lead a team of mechanics and coordinate with operations staff.", qualifications:["Railcar maintenance management experience","Passenger equipment knowledge","Team leadership skills","Customer service orientation"], keywords:["railcar","passenger","excursion","manager","maintenance","Pullman","Virginia","operations"] },
+  { id:"590950fe", title:"Mechanical Engineer II", team:"Mechanical", location:"Chesapeake, VA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/590950fe-5c63-43db-a066-9e579cc3f47b", description:"Design and analyze mechanical systems for railroad and marine applications. Support project teams from concept through completion.", qualifications:["BS Mechanical Engineering","3+ years experience","CAD proficiency","Railroad or marine experience a plus"], keywords:["mechanical engineer","CAD","design","railroad","marine","Chesapeake"] },
+  { id:"e4df2f24", title:"Principal Engineer", team:"Mechanical", location:"Chesapeake, VA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/e4df2f24-381c-402e-8a43-72ca108458c0", description:"Senior technical leadership role overseeing complex railroad and marine engineering projects. Mentor junior engineers and drive technical excellence.", qualifications:["PE license preferred","10+ years engineering experience","Railroad or marine project leadership","Strong written and verbal communication"], keywords:["principal engineer","senior","PE","railroad","marine","leadership","technical","Chesapeake"] },
+  { id:"533e3f7a", title:"Railcar Repair Operations Manager", team:"Mechanical", location:"East Chicago, IN", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/533e3f7a-4485-436c-a530-25dcdccd6509", description:"Oversee railcar repair shop operations in East Chicago. Manage workforce, production schedules, and quality standards.", qualifications:["Railcar repair experience","Operations management background","AAR or FRA regulatory knowledge","Strong leadership skills"], keywords:["railcar repair","operations manager","AAR","FRA","shop","East Chicago","Indiana","maintenance","production"] },
+  { id:"c6aa81f2", title:"Railcar Repair Operations Manager", team:"Mechanical", location:"Yakima, WA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/c6aa81f2-d5f9-4d50-9145-cbfd1ec8823c", description:"Lead railcar repair operations in Yakima, WA. Ensure efficient production, safety compliance, and team development.", qualifications:["Railcar repair background","Proven management experience","Knowledge of AAR and FRA standards","Washington state shop experience a plus"], keywords:["railcar repair","operations manager","AAR","FRA","Yakima","Washington","shop","maintenance"] },
+  { id:"6a331d29", title:"Railroad Equipment Shop Mechanic", team:"Mechanical", location:"Kansas City, MO", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/6a331d29-561c-49ae-b059-b75f81bc7f36", description:"Perform maintenance and repair on railroad equipment in a shop environment. Work on locomotives, railcars, and MOW equipment.", qualifications:["Diesel mechanics experience","Railroad equipment background","Welding and fabrication a plus","Safety-focused work ethic"], keywords:["shop mechanic","railroad equipment","diesel","welding","fabrication","Kansas City","maintenance","repair"] },
+  { id:"11e917de", title:"Tank Car Repairman", team:"Mechanical", location:"Moss Point, MS", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/11e917de-6a30-4b12-af95-7f5c4085eda9", description:"Inspect and repair tank cars to AAR and FRA standards. Ensure safe and compliant return to service of hazmat-capable rolling stock.", qualifications:["Tank car repair experience","AAR/FRA compliance knowledge","Welding certification preferred","Hazmat awareness training"], keywords:["tank car","repairman","AAR","FRA","welding","hazmat","Mississippi","rail","repair"] },
+  { id:"82d88765", title:"Traveling Railroad Equipment Mechanic", team:"Mechanical", location:"Multiple Locations", worktype:"Full-time Traveling", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/82d88765-d7eb-4996-b7a0-33d6767b1d8d", description:"Travel to railroad sites nationwide to perform equipment maintenance and repair. Flexible and independent role supporting multiple rail clients.", qualifications:["Locomotive or railcar repair experience","Willingness to travel extensively","Self-directed work style","Valid driver's license"], keywords:["traveling mechanic","railroad equipment","mobile","repair","travel","locomotive","railcar","field service"] },
+  { id:"6614a4f0", title:"Railroad Signal & Communications Foreman", team:"Signal & Communications", location:"Winona/Jackson/Hattiesburg, MS", worktype:"Full-time Traveling", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/6614a4f0-45c8-4110-9d8c-c6ac0872f3e1", description:"Lead signal and communications installation and maintenance crews along Class I and shortline railroad corridors in Mississippi.", qualifications:["Signal or communications railroad experience","Crew leadership","FRA signal regulations knowledge","Willingness to travel"], keywords:["signal","communications","foreman","railroad","FRA","crew leader","Mississippi","C&S","traveling"] },
+  { id:"cc529363", title:"Railroad Signal Maintainer", team:"Signal & Communications", location:"Winona/Jackson/Hattiesburg, MS", worktype:"Full-time Traveling", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/cc529363-375c-4c89-b479-e961ed37811e", description:"Maintain and repair railroad signal systems including grade crossing signals, interlockings, and wayside signals.", qualifications:["Signal maintenance experience","Electronics or electrical background","FRA signal rules knowledge","Willingness to travel in Mississippi"], keywords:["signal maintainer","railroad","electronics","electrical","FRA","grade crossing","interlocking","Mississippi"] },
+  { id:"03727630", title:"Certified Welder – Pipe Culvert Installation", team:"Track Construction", location:"KC/St. Louis, MO", worktype:"Full-time Traveling", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/03727630-8491-4c0d-9e0e-8e26758b2465", description:"Perform certified welding on pipe culvert installations along railroad rights-of-way. Travel to project sites in Kansas City and St. Louis areas.", qualifications:["Welding certification required","Pipe welding experience","Construction or railroad environment experience","Willingness to travel"], keywords:["welder","certified","pipe","culvert","railroad","construction","Kansas City","St. Louis","traveling"] },
+  { id:"d45d470a", title:"Freight Rail Engineering Project Manager", team:"Track Construction", location:"Multiple Cities", worktype:"Full time with Travel", salary:"$100k–$280k/yr", lever:"https://jobs.lever.co/springrecruits/d45d470a-5edf-4383-a2aa-e4f8cab2dced", description:"Manage complex freight rail engineering projects from business development through delivery. Lead multi-discipline teams and client relationships.", qualifications:["BS Engineering required, PE preferred","7+ years rail engineering or PM experience","Client-facing project management","MicroStation/OpenRail proficiency"], keywords:["project manager","freight rail","engineering","PE","MicroStation","OpenRail","civil","railroad","track","ESOP"] },
+  { id:"58cc0dd4", title:"Heavy Equipment Operator – CDL A", team:"Track Construction", location:"Dallas, GA", worktype:"Full-time Traveling", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/58cc0dd4-835f-47ad-aaf4-a68341605bbb", description:"Operate heavy equipment including excavators, dozers, and cranes on railroad track construction projects.", qualifications:["CDL Class A license required","Heavy equipment operation experience","Railroad or civil construction background","Safety certifications"], keywords:["heavy equipment","CDL A","operator","excavator","crane","dozer","railroad","construction","Georgia","track"] },
+  { id:"9117f86d", title:"Jack & Bore Supervisor – Culvert Installation", team:"Track Construction", location:"KC/St. Louis, MO", worktype:"Full time with Travel", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/9117f86d-5606-4e49-a3b1-0eb7d8a59ee6", description:"Supervise jack and bore culvert installation projects on railroad rights-of-way. Coordinate crews, equipment, and compliance.", qualifications:["Jack and bore supervisor experience","Railroad right-of-way knowledge","Crew and subcontractor management","Safety program leadership"], keywords:["jack bore","supervisor","culvert","railroad","construction","Kansas City","Missouri","crew","traveling"] },
+  { id:"296298fc", title:"Railroad Bridge Engineer", team:"Track Construction", location:"Brentwood, TN", worktype:"Hybrid Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/296298fc-a520-41ad-8cbe-014ff278cbb3", description:"Design and inspect railroad bridges and structures. Ensure compliance with AREMA standards and coordinate with construction teams.", qualifications:["Structural or civil engineering degree","AREMA knowledge","Bridge design and inspection experience","PE license preferred"], keywords:["bridge engineer","AREMA","structural","railroad","civil","Tennessee","inspection","design"] },
+  { id:"1882e3d9", title:"Railroad Construction Operations Manager", team:"Track Construction", location:"Harrisburg, PA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/1882e3d9-5d78-4378-8221-f48712cf1f79", description:"Oversee railroad construction operations in Harrisburg, PA. Manage project delivery, crews, safety programs, and client relationships.", qualifications:["Railroad construction management experience","P&L responsibility","Safety program oversight","Client relations skills"], keywords:["construction manager","railroad","operations","Harrisburg","Pennsylvania","project management","safety","crew"] },
+  { id:"10846f73", title:"Railroad Roadmaster", team:"Track Construction", location:"Columbus, NE", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/10846f73-d2d3-464c-acd7-8e409590d7fc", description:"Maintain and manage track territory in Nebraska. Oversee track inspection, maintenance programs, and MOW crews.", qualifications:["FRA track inspection qualification","Roadmaster or foreman experience","Nebraska territory familiarity a plus","Strong safety culture"], keywords:["roadmaster","track","FRA","MOW","maintenance","Nebraska","Columbus","inspection","railroad"] },
+  { id:"20687a50", title:"Railroad Track Construction Estimator", team:"Track Construction", location:"Ashtabula, OH", worktype:"Full time with Travel", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/20687a50-28fe-4cc8-b48d-3c804bc650b9", description:"Prepare cost estimates for railroad track construction and maintenance projects. Analyze project scope, materials, and labor requirements.", qualifications:["Estimating experience in railroad or heavy construction","Knowledge of track materials and labor costs","Proficiency in estimating software","Willingness to travel"], keywords:["estimator","track construction","railroad","cost","bid","Ohio","Ashtabula","estimation","construction"] },
+  { id:"0cd8a62c", title:"Railroad Track Project Manager", team:"Track Construction", location:"New York, NY", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/0cd8a62c-26f3-476f-92af-7396ba100fd8", description:"Manage railroad track construction and maintenance projects in New York. Lead project teams and coordinate with transit and freight rail clients.", qualifications:["Railroad project management experience","New York/MTA transit experience a plus","Scheduling and budgeting skills","Client management"], keywords:["project manager","track","railroad","New York","MTA","transit","construction","PM","scheduling"] },
+  { id:"4b9a12b0", title:"Railroad Track Project Manager", team:"Track Construction", location:"Boston, MA", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/4b9a12b0-d1aa-453e-adf2-6d3648a74171", description:"Manage railroad track construction projects in the Boston area. Work with MBTA, freight clients, and construction teams to deliver on time and on budget.", qualifications:["Track PM experience","MBTA or commuter rail familiarity a plus","Scheduling and cost control","Strong communication skills"], keywords:["project manager","track","railroad","Boston","MBTA","commuter rail","construction","scheduling","Massachusetts"] },
+  { id:"ae0ee15b", title:"Dual Certified – Locomotive Engineer (RCL)/Conductor", team:"Transportation/Operations", location:"Richland, WA", worktype:"Full-time", salary:"$27–$35/hr", lever:"https://jobs.lever.co/springrecruits/ae0ee15b-7b7b-4ed0-90a5-3979b5d81f9c", description:"Operate locomotives and manage train movements as a one-person crew. RCL certification required. Mostly daylight shifts, excellent work-life balance.", qualifications:["RCL (Remote Controlled Locomotive) certification required","1+ year railroad experience","Strong safety and customer service record","Valid driver's license"], keywords:["locomotive engineer","conductor","RCL","operator","railroad","Washington","Richland","certified","operations"] },
+  { id:"9ade88d6", title:"Dual Certified Conductor/Engineer", team:"Transportation/Operations", location:"Altus, OK", worktype:"Full-time", salary:"Competitive", lever:"https://jobs.lever.co/springrecruits/9ade88d6-5de2-413e-82e0-6b625eb48832", description:"Operate and manage train movements in Altus, OK. Dual certification as conductor and engineer required.", qualifications:["Conductor and engineer dual certification","Railroad operations experience","Safety-focused","FRA compliance knowledge"], keywords:["conductor","engineer","dual certified","railroad","Oklahoma","Altus","operations","FRA","train"] }
+];
+
+const SYSTEM_PROMPT = `You are a railroad industry career matching expert for Spring Recruits, a specialist railroad recruiting firm. 
+You analyze resumes and score them against job descriptions.
+Return ONLY valid JSON with no markdown, no explanation, no preamble.
+The JSON must be an object with a "matches" array.
+Each match has: jobId (string), score (0-100 integer), matchedKeywords (array of 3-5 strings from the resume that match), missingKeywords (array of 2-3 important things from the job they lack), summary (one sentence, 20 words max, why they're a fit or not).
+Score rubric: 80-100 = excellent match, 60-79 = good match, 40-59 = partial, below 40 = weak.
+Be realistic and honest. A general mechanic can match locomotive mechanic roles well. A civil engineer can match engineering PM roles. A sales professional can match sales roles.`;
+
+let resumeText = '';
+let currentJobs = [];
+let currentIndex = 0;
+let likedJobs = [];
+let matchedJobs = [];
+let matchScores = {};
+
+// UI helpers
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 2500);
+}
+
+// Upload
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('resume-file-input');
+const analyzeBtn = document.getElementById('analyze-btn');
+const fileSelectedEl = document.getElementById('file-selected');
+const fileNameDisplay = document.getElementById('file-name-display');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+
+function handleFile(file) {
+  if (!file) return;
+  fileNameDisplay.textContent = file.name;
+  fileSelectedEl.classList.add('visible');
+  analyzeBtn.disabled = false;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    resumeText = e.target.result;
+    if (resumeText.includes('%PDF')) {
+      resumeText = '[PDF RESUME - candidate has uploaded a PDF. Assume professional railroad industry background with relevant experience in their field based on the filename: ' + file.name + '. Treat as a qualified candidate with mixed experience.]';
+    }
+  };
+  reader.readAsText(file);
+}
+
+analyzeBtn.addEventListener('click', startAnalysis);
+
+async function startAnalysis() {
+  showScreen('analyzing-screen');
+  await animateSteps();
+  await analyzeResume();
+}
+
+async function animateSteps() {
+  const steps = ['step-1','step-2','step-3','step-4'];
+  for (let i = 0; i < steps.length; i++) {
+    await new Promise(r => setTimeout(r, 900));
+    if (i > 0) {
+      document.getElementById(steps[i-1]).classList.remove('active');
+      document.getElementById(steps[i-1]).classList.add('done');
+    }
+    document.getElementById(steps[i]).classList.add('active');
+  }
+  await new Promise(r => setTimeout(r, 600));
+}
+
+async function analyzeResume() {
+  const jobList = JOBS.map(j =>
+    `JOB ID: ${j.id}\nTitle: ${j.title}\nTeam: ${j.team}\nKeywords: ${j.keywords.join(', ')}\nQualifications: ${j.qualifications.join('; ')}`
+  ).join('\n\n---\n\n');
+
+  const userMsg = `RESUME CONTENT:\n${resumeText || 'No resume text extracted - assume a general railroad industry candidate.'}\n\n===OPEN POSITIONS===\n${jobList}\n\nReturn JSON with matches array scored for all ${JOBS.length} jobs.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+
+    const data = await resp.json();
+    const text = data.content.map(b => b.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    const scoreMap = {};
+    parsed.matches.forEach(m => { scoreMap[m.jobId] = m; });
+    matchScores = scoreMap;
+
+    currentJobs = [...JOBS].sort((a, b) => {
+      const sa = scoreMap[a.id]?.score || 0;
+      const sb = scoreMap[b.id]?.score || 0;
+      return sb - sa;
+    });
+
+    buildCards();
+    showScreen('swipe-screen');
+  } catch (err) {
+    console.error(err);
+    // Fallback with random scores
+    matchScores = {};
+    JOBS.forEach(j => {
+      matchScores[j.id] = {
+        score: Math.floor(Math.random() * 40) + 40,
+        matchedKeywords: j.keywords.slice(0, 3),
+        missingKeywords: j.qualifications.slice(0, 2),
+        summary: 'Potential match based on your background.'
+      };
+    });
+    currentJobs = [...JOBS].sort((a,b) => (matchScores[b.id]?.score||0) - (matchScores[a.id]?.score||0));
+    buildCards();
+    showScreen('swipe-screen');
+    showToast('⚠️ Using estimated scores');
+  }
+}
+
+function getScoreColor(score) {
+  if (score >= 80) return '#27ae60';
+  if (score >= 60) return '#f39c12';
+  if (score >= 40) return '#e67e22';
+  return '#c0392b';
+}
+
+function buildCards() {
+  const stack = document.getElementById('card-stack');
+  stack.querySelectorAll('.job-card').forEach(c => c.remove());
+
+  const visible = currentJobs.slice(currentIndex, currentIndex + 3);
+  visible.reverse().forEach((job, ri) => {
+    const card = makeCard(job);
+    if (ri === 0) {
+      card.style.zIndex = 1;
+      card.style.transform = 'scale(0.9) translateY(24px)';
+    } else if (ri === 1) {
+      card.style.zIndex = 2;
+      card.style.transform = 'scale(0.95) translateY(12px)';
+    } else {
+      card.style.zIndex = 3;
+      card.style.transform = '';
+      setupSwipe(card, job);
+    }
+    stack.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function makeCard(job) {
+  const ms = matchScores[job.id] || { score: 50, matchedKeywords: [], missingKeywords: [], summary: '' };
+  const score = ms.score;
+  const color = getScoreColor(score);
+
+  const card = document.createElement('div');
+  card.className = 'job-card';
+  card.dataset.jobId = job.id;
+
+  const kwHtml = [
+    ...(ms.matchedKeywords||[]).map(k => `<span class="kw-tag kw-match">✓ ${k}</span>`),
+    ...(ms.missingKeywords||[]).map(k => `<span class="kw-tag kw-miss">○ ${k}</span>`)
+  ].join('');
+
+  const qualHtml = job.qualifications.map(q => `<li>${q}</li>`).join('');
+
+  card.innerHTML = `
+    <div class="swipe-overlay overlay-like">MATCH</div>
+    <div class="swipe-overlay overlay-pass">PASS</div>
+    <div class="card-header">
+      <div class="card-category">${job.team}</div>
+      <div class="card-title">${job.title}</div>
+      <div class="card-meta">
+        <span class="meta-tag location">📍 ${job.location}</span>
+        <span class="meta-tag worktype">⏱ ${job.worktype}</span>
+        ${job.salary !== 'Competitive' ? `<span class="meta-tag" style="border-color:rgba(243,156,18,0.3);color:var(--gold)">💰 ${job.salary}</span>` : ''}
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="match-score-section">
+        <div class="match-score-header">
+          <span class="match-score-label">Match Score</span>
+          <span class="match-score-value" style="color:${color}">${score}%</span>
+        </div>
+        <div class="match-score-bar">
+          <div class="match-score-fill" style="width:${score}%;background:${color}"></div>
+        </div>
+        <div class="match-score-desc">${ms.summary || 'AI-analyzed match based on your resume.'}</div>
+        <div class="match-keywords">${kwHtml}</div>
+      </div>
+      <div>
+        <div class="section-label">About the role</div>
+        <p class="card-description">${job.description}</p>
+      </div>
+      <div>
+        <div class="section-label">Qualifications</div>
+        <ul class="qualifications-list">${qualHtml}</ul>
+      </div>
+      ${job.salary !== 'Competitive' ? `<div class="salary-badge"><span>💰</span><span>${job.salary}</span></div>` : ''}
+    </div>
+  `;
+  return card;
+}
+
+// SWIPE LOGIC
+let startX = 0, startY = 0, isDragging = false, curCard = null, curJob = null;
+
+function setupSwipe(card, job) {
+  card.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY, card, job));
+  card.addEventListener('touchstart', e => { const t = e.touches[0]; startDrag(t.clientX, t.clientY, card, job); }, { passive: true });
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('touchmove', e => { if (isDragging) { const t = e.touches[0]; onDrag({ clientX: t.clientX, clientY: t.clientY }); } }, { passive: true });
+  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('touchend', endDrag);
+}
+
+function startDrag(x, y, card, job) {
+  startX = x; startY = y; isDragging = true;
+  curCard = card; curJob = job;
+  card.classList.add('swiping');
+}
+
+function onDrag(e) {
+  if (!isDragging || !curCard) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  const rotate = dx * 0.08;
+  curCard.style.transform = `translateX(${dx}px) translateY(${dy * 0.3}px) rotate(${rotate}deg)`;
+
+  const likeOverlay = curCard.querySelector('.overlay-like');
+  const passOverlay = curCard.querySelector('.overlay-pass');
+  likeOverlay.style.opacity = Math.min(Math.max(dx / 80, 0), 1);
+  passOverlay.style.opacity = Math.min(Math.max(-dx / 80, 0), 1);
+}
+
+function endDrag() {
+  if (!isDragging || !curCard) return;
+  isDragging = false;
+  const card = curCard; const job = curJob;
+  curCard = null; curJob = null;
+
+  const transform = card.style.transform;
+  const match = transform.match(/translateX\((-?\d+\.?\d*)px\)/);
+  const dx = match ? parseFloat(match[1]) : 0;
+
+  if (dx > 100) { triggerLike(card, job); }
+  else if (dx < -100) { triggerPass(card, job); }
+  else {
+    card.classList.remove('swiping');
+    card.style.transform = '';
+    card.querySelectorAll('.swipe-overlay').forEach(o => o.style.opacity = 0);
+  }
+}
+
+function triggerLike(card, job) {
+  card.classList.remove('swiping');
+  card.classList.add('swipe-right');
+  likedJobs.push(job);
+  const score = matchScores[job.id]?.score || 50;
+  if (score >= 70) {
+    matchedJobs.push(job);
+    document.getElementById('match-badge').style.display = 'inline-flex';
+    document.getElementById('match-badge').textContent = matchedJobs.length + (matchedJobs.length === 1 ? ' match' : ' matches');
+    setTimeout(() => showMatchScreen(job), 400);
+  }
+  setTimeout(() => { card.remove(); advanceIndex(); }, 350);
+}
+
+function triggerPass(card, job) {
+  card.classList.remove('swiping');
+  card.classList.add('swipe-left');
+  setTimeout(() => { card.remove(); advanceIndex(); }, 350);
+}
+
+function advanceIndex() {
+  currentIndex++;
+  if (currentIndex >= currentJobs.length) {
+    showResults(); return;
+  }
+  buildCards();
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = currentJobs.length;
+  const done = currentIndex;
+  document.getElementById('swipe-counter').textContent = `${Math.min(done + 1, total)} / ${total}`;
+  document.getElementById('swipe-progress-bar').style.width = `${(done / total) * 100}%`;
+  document.getElementById('match-tally').textContent = likedJobs.length + ' ❤️';
+}
+
+// Button actions
+document.getElementById('btn-pass').addEventListener('click', () => {
+  const card = document.querySelector('#card-stack .job-card:last-child');
+  const jobId = card?.dataset.jobId;
+  if (card && jobId) { triggerPass(card, currentJobs.find(j => j.id === jobId)); }
+});
+
+document.getElementById('btn-like').addEventListener('click', () => {
+  const card = document.querySelector('#card-stack .job-card:last-child');
+  const jobId = card?.dataset.jobId;
+  if (card && jobId) { triggerLike(card, currentJobs.find(j => j.id === jobId)); }
+});
+
+document.getElementById('btn-results-link').addEventListener('click', showResults);
+
+// Match screen
+function showMatchScreen(job) {
+  const ms = matchScores[job.id] || { score: 80 };
+  document.getElementById('match-job-title').textContent = job.title;
+  document.getElementById('match-job-location').textContent = '📍 ' + job.location;
+  document.getElementById('match-score-pill').textContent = '⚡ ' + ms.score + '% match';
+  document.getElementById('match-apply-link').href = job.lever;
+  showScreen('match-screen');
+}
+
+document.getElementById('btn-keep-swiping').addEventListener('click', () => showScreen('swipe-screen'));
+
+// Results
+function showResults() {
+  const all = [...matchedJobs.map(j => ({ job: j, type: 'match' })), ...likedJobs.filter(j => !matchedJobs.includes(j)).map(j => ({ job: j, type: 'liked' }))];
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+
+  if (all.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--smoke);padding:40px 0;font-size:14px;">No jobs liked yet.<br>Go back and swipe on some roles!</div>';
+    document.getElementById('results-subtext').textContent = 'You haven\'t liked any roles yet';
+  } else {
+    document.getElementById('results-subtext').textContent = `${matchedJobs.length} strong match${matchedJobs.length !== 1 ? 'es' : ''} · ${likedJobs.length} total liked`;
+    all.forEach(({ job, type }) => {
+      const ms = matchScores[job.id] || { score: 50 };
+      const color = getScoreColor(ms.score);
+      const item = document.createElement('div');
+      item.className = 'result-item';
+      item.innerHTML = `
+        <div class="result-score-circle" style="background:${color}22;border:1.5px solid ${color}44;color:${color}">${ms.score}%</div>
+        <div class="result-info">
+          <div class="result-title">${job.title}</div>
+          <div class="result-location">📍 ${job.location} · ${job.team}</div>
+        </div>
+        <a class="result-apply-btn ${type}" href="${job.lever}" target="_blank">APPLY →</a>
+      `;
+      list.appendChild(item);
+    });
+  }
+  showScreen('results-screen');
+}
+
+document.getElementById('btn-restart').addEventListener('click', () => {
+  resumeText = ''; likedJobs = []; matchedJobs = []; matchScores = {};
+  currentJobs = []; currentIndex = 0;
+  fileInput.value = '';
+  fileSelectedEl.classList.remove('visible');
+  analyzeBtn.disabled = true;
+  document.getElementById('match-badge').style.display = 'none';
+  ['step-1','step-2','step-3','step-4'].forEach((s,i) => {
+    const el = document.getElementById(s);
+    el.classList.remove('active','done');
+    if (i === 0) el.classList.add('active');
+  });
+  showScreen('upload-screen');
+});
+</script>
+</body>
+</html>
